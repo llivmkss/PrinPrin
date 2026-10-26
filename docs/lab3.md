@@ -6,7 +6,7 @@
 
 ```
 uv sync
-uv run python src/main.py
+uv run python -m src.main
 ```
 
 Вход администратора: логин `admin`, пароль `admin123`.
