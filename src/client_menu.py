@@ -2,20 +2,14 @@
 
 from datetime import datetime
 
-from console import CANCEL_WORD, Console
-from errors import TableUnavailableError
-from formatters import format_booking, format_restaurant, format_table
-from models import Restaurant, Table
-from services import BookingService
-from validators import (
-    parse_booking_id,
-    parse_date,
-    parse_guests,
-    parse_table_number,
-    parse_time,
-    validate_name,
-    validate_phone,
-)
+from src.console import CANCEL_WORD
+from src.console import Console
+from src.errors import TableUnavailableError
+from src.formatters import Formatter
+from src.models import Booking
+from src.models import Restaurant
+from src.models import Table
+from src.services import BookingService
 
 
 class ClientMenu:
@@ -26,76 +20,78 @@ class ClientMenu:
         console: Console,
         restaurant: Restaurant,
         bookings: BookingService,
+        formatter: Formatter,
     ) -> None:
-        """Принимает консоль, данные о ресторане и сервис бронирования."""
-        self._console = console
-        self._restaurant = restaurant
-        self._bookings = bookings
+        """Принимает консоль, данные о ресторане, сервис бронирования и форматтер."""
+        self.__console: Console = console
+        self.__restaurant: Restaurant = restaurant
+        self.__bookings: BookingService = bookings
+        self.__formatter: Formatter = formatter
 
     def show_info(self) -> None:
         """Показывает информацию о ресторане."""
-        self._console.say(format_restaurant(self._restaurant))
+        self.__console.say(self.__formatter.format_restaurant(self.__restaurant))
 
     def book(self) -> None:
         """Ведёт клиента от выбора даты до подтверждения бронирования."""
-        self._console.say(f"Для отказа на любом шаге введите «{CANCEL_WORD}».")
-        start = self._ask_start()
-        guests = self._console.ask_parsed("Количество гостей", parse_guests)
-        table = self._choose_table(start, guests)
+        self.__console.say(f"Для отказа на любом шаге введите «{CANCEL_WORD}».")
+        start = self.__ask_start()
+        guests = self.__console.ask_positive_int("Количество гостей")
+        table = self.__choose_table(start, guests)
         if table is None:
             return
-        name = self._console.ask_parsed("Ваше имя", validate_name)
-        phone = self._console.ask_parsed("Телефон (+7XXXXXXXXXX)", validate_phone)
+        name = self.__console.ask_parsed("Ваше имя", Booking.validate_name)
+        phone = self.__console.ask_parsed(
+            "Телефон (+7XXXXXXXXXX)", Booking.validate_phone
+        )
         while True:
             try:
-                booking = self._bookings.create_booking(
+                booking = self.__bookings.create_booking(
                     table.number, start, guests, name, phone
                 )
             except TableUnavailableError as error:
-                self._console.say(f"{error} Выберите другой столик.")
-                table = self._choose_table(start, guests)
+                self.__console.say(f"{error} Выберите другой столик.")
+                table = self.__choose_table(start, guests)
                 if table is None:
                     return
             else:
                 break
-        self._console.say("Бронирование создано. Сохраните номер для отмены!")
-        self._console.say(format_booking(booking))
+        self.__console.say("Бронирование создано. Сохраните номер для отмены!")
+        self.__console.say(self.__formatter.format_booking(booking))
 
     def cancel(self) -> None:
         """Отменяет бронирование по идентификатору после подтверждения."""
-        booking_id = self._console.ask_parsed(
-            "Идентификатор бронирования", parse_booking_id
-        )
-        booking = self._bookings.get_booking(booking_id)
-        self._bookings.ensure_cancellable(booking)
-        self._console.say(format_booking(booking))
-        if not self._console.confirm("Отменить это бронирование?"):
-            self._console.say("Бронирование сохранено.")
+        booking_id = self.__console.ask_positive_int("Идентификатор бронирования")
+        booking = self.__bookings.get_booking(booking_id)
+        self.__bookings.ensure_cancellable(booking)
+        self.__console.say(self.__formatter.format_booking(booking))
+        if not self.__console.confirm("Отменить это бронирование?"):
+            self.__console.say("Бронирование сохранено.")
             return
-        self._bookings.cancel_booking(booking_id)
-        self._console.say("Бронирование отменено.")
+        self.__bookings.cancel_booking(booking_id)
+        self.__console.say("Бронирование отменено.")
 
-    def _ask_start(self) -> datetime:
+    def __ask_start(self) -> datetime:
         """Запрашивает дату и время посещения."""
-        day = self._console.ask_parsed("Дата посещения (ДД.ММ.ГГГГ)", parse_date)
-        at = self._console.ask_parsed("Время посещения (ЧЧ:ММ)", parse_time)
+        day = self.__console.ask_date("Дата посещения")
+        at = self.__console.ask_time("Время посещения")
         return datetime.combine(day, at)
 
-    def _choose_table(self, start: datetime, guests: int) -> Table | None:
+    def __choose_table(self, start: datetime, guests: int) -> Table | None:
         """Показывает свободные столики и возвращает выбранный или None."""
-        tables = self._bookings.find_available_tables(start, guests)
+        tables = self.__bookings.find_available_tables(start, guests)
         if not tables:
-            self._console.say(
+            self.__console.say(
                 "На выбранные дату, время и количество гостей свободных столиков "
                 "нет. Попробуйте изменить параметры поиска."
             )
             return None
-        self._console.say("Свободные столики:")
+        self.__console.say("Свободные столики:")
         for table in tables:
-            self._console.say(format_table(table))
-        by_number = {table.number: table for table in tables}
+            self.__console.say(self.__formatter.format_table(table))
+        tables_by_number = {table.number: table for table in tables}
         while True:
-            number = self._console.ask_parsed("Номер столика", parse_table_number)
-            if number in by_number:
-                return by_number[number]
-            self._console.say("Выберите столик из списка выше.")
+            number = self.__console.ask_positive_int("Номер столика")
+            if number in tables_by_number:
+                return tables_by_number[number]
+            self.__console.say("Выберите столик из списка выше.")

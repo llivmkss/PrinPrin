@@ -1,18 +1,21 @@
 """Сборка приложения: создание объектов и связывание их зависимостей."""
 
-from admin_menu import AdminMenu
-from cli import ConsoleApp
-from client_menu import ClientMenu
-from console import Console
-from models import Admin
-from repositories import (
-    InMemoryAdminRepository,
-    InMemoryBookingRepository,
-    InMemoryTableRepository,
-)
-from security import PasswordHasher
-from seed import ADMIN_LOGIN, ADMIN_PASSWORD, RESTAURANT, TABLES
-from services import AuthService, BookingService
+from src.admin_menu import AdminMenu
+from src.cli import ConsoleApp
+from src.client_menu import ClientMenu
+from src.console import Console
+from src.formatters import Formatter
+from src.models import Admin
+from src.repositories import InMemoryAdminRepository
+from src.repositories import InMemoryBookingRepository
+from src.repositories import InMemoryTableRepository
+from src.security import PasswordHasher
+from src.seed import ADMIN_LOGIN
+from src.seed import ADMIN_PASSWORD
+from src.seed import RESTAURANT
+from src.seed import TABLES
+from src.services import AuthService
+from src.services import BookingService
 
 
 def build_app() -> ConsoleApp:
@@ -25,8 +28,9 @@ def build_app() -> ConsoleApp:
     )
     auth_service = AuthService(InMemoryAdminRepository([admin]), hasher)
     console = Console()
+    formatter = Formatter()
     return ConsoleApp(
         console,
-        ClientMenu(console, RESTAURANT, booking_service),
-        AdminMenu(console, auth_service, booking_service),
+        ClientMenu(console, RESTAURANT, booking_service, formatter),
+        AdminMenu(console, auth_service, booking_service, formatter),
     )

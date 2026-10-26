@@ -2,17 +2,18 @@
 
 from datetime import time
 
-from models import Restaurant, Table
+from src.models import Restaurant
+from src.models import Table
 
-RESTAURANT = Restaurant(
+RESTAURANT: Restaurant = Restaurant(
     name="Маруся",
-    address="г. Волгоград, ул. Аллея Героев, д. 1",
-    opens_at=time(9, 0),
+    address="г. Москва, ул. Примерная, д. 1",
+    opens_at=time(10, 0),
     closes_at=time(23, 0),
-    phone="+7 (8442) 59-59-24",
+    phone="+7 (495) 000-00-00",
 )
 
-TABLES = [
+TABLES: list[Table] = [
     Table(number=1, capacity=2, zone="Основной зал"),
     Table(number=2, capacity=2, zone="У окна"),
     Table(number=3, capacity=4, zone="Основной зал"),
@@ -23,5 +24,5 @@ TABLES = [
     Table(number=8, capacity=10, zone="Банкетный зал"),
 ]
 
-ADMIN_LOGIN = "admin"
-ADMIN_PASSWORD = "admin123"
+ADMIN_LOGIN: str = "admin"
+ADMIN_PASSWORD: str = "admin123"

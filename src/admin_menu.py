@@ -1,11 +1,11 @@
 """Действия администратора: вход, просмотр броней и занятости столиков."""
 
-from console import Console
-from errors import AuthenticationError
-from formatters import format_booking, format_booking_row, format_occupancy
-from models import Admin
-from services import AuthService, BookingService
-from validators import parse_booking_id, parse_date
+from src.console import Console
+from src.errors import AuthenticationError
+from src.formatters import Formatter
+from src.models import Admin
+from src.services import AuthService
+from src.services import BookingService
 
 
 class AdminMenu:
@@ -16,19 +16,21 @@ class AdminMenu:
         console: Console,
         auth: AuthService,
         bookings: BookingService,
+        formatter: Formatter,
     ) -> None:
-        """Принимает консоль, сервис аутентификации и сервис бронирования."""
-        self._console = console
-        self._auth = auth
-        self._bookings = bookings
+        """Принимает консоль, сервисы аутентификации и бронирования и форматтер."""
+        self.__console: Console = console
+        self.__auth: AuthService = auth
+        self.__bookings: BookingService = bookings
+        self.__formatter: Formatter = formatter
 
     def enter(self) -> None:
         """Выполняет вход и открывает панель администратора."""
-        admin = self._authenticate()
+        admin = self.__authenticate()
         if admin is None:
             return
-        self._console.say(f"Вы вошли как {admin.login}.")
-        self._console.run_menu(
+        self.__console.say(f"Вы вошли как {admin.login}.")
+        self.__console.run_menu(
             "Панель администратора",
             [
                 ("Список бронирований", self.show_bookings),
@@ -40,34 +42,33 @@ class AdminMenu:
 
     def show_bookings(self) -> None:
         """Показывает список всех бронирований."""
-        bookings = self._bookings.list_bookings()
+        bookings = self.__bookings.list_bookings()
         if not bookings:
-            self._console.say("Бронирований пока нет.")
+            self.__console.say("Бронирований пока нет.")
             return
         for booking in bookings:
-            self._console.say(format_booking_row(booking))
+            self.__console.say(self.__formatter.format_booking_row(booking))
 
     def show_booking(self) -> None:
         """Показывает подробности бронирования по идентификатору."""
-        booking_id = self._console.ask_parsed(
-            "Идентификатор бронирования", parse_booking_id
-        )
-        self._console.say(format_booking(self._bookings.get_booking(booking_id)))
+        booking_id = self.__console.ask_positive_int("Идентификатор бронирования")
+        booking = self.__bookings.get_booking(booking_id)
+        self.__console.say(self.__formatter.format_booking(booking))
 
     def show_occupancy(self) -> None:
         """Показывает занятость всех столиков на выбранную дату."""
-        day = self._console.ask_parsed("Дата (ДД.ММ.ГГГГ)", parse_date)
-        for occupancy in self._bookings.occupancy_for_date(day):
-            self._console.say(format_occupancy(occupancy))
+        day = self.__console.ask_date("Дата")
+        for occupancy in self.__bookings.occupancy_for_date(day):
+            self.__console.say(self.__formatter.format_occupancy(occupancy))
 
-    def _authenticate(self) -> Admin | None:
+    def __authenticate(self) -> Admin | None:
         """Запрашивает логин и пароль, пока вход не удался или клиент не отказался."""
         while True:
-            login = self._console.ask("Логин")
-            password = self._console.ask_secret("Пароль")
+            login = self.__console.ask("Логин")
+            password = self.__console.ask_secret("Пароль")
             try:
-                return self._auth.login(login, password)
+                return self.__auth.login(login, password)
             except AuthenticationError as error:
-                self._console.say(str(error))
-                if not self._console.confirm("Повторить ввод?"):
+                self.__console.say(str(error))
+                if not self.__console.confirm("Повторить ввод?"):
                     return None

@@ -1,6 +1,6 @@
 """Точка входа: запуск консольного приложения бронирования столиков."""
 
-from bootstrap import build_app
+from src.bootstrap import build_app
 
 
 def main() -> None:

@@ -1,10 +1,14 @@
 """Хранилища данных: абстрактные интерфейсы и реализации в оперативной памяти."""
 
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
 from collections.abc import Iterable
+from collections.abc import Iterator
 from itertools import count
 
-from models import Admin, Booking, Table
+from src.models import Admin
+from src.models import Booking
+from src.models import Table
 
 
 class TableRepository(ABC):
@@ -60,15 +64,15 @@ class InMemoryTableRepository(TableRepository):
 
     def __init__(self, tables: Iterable[Table]) -> None:
         """Заполняет хранилище переданными столиками."""
-        self._tables = {table.number: table for table in tables}
+        self.__tables: dict[int, Table] = {table.number: table for table in tables}
 
     def get(self, number: int) -> Table | None:
         """Возвращает столик по номеру или None, если такого нет."""
-        return self._tables.get(number)
+        return self.__tables.get(number)
 
     def list_all(self) -> list[Table]:
         """Возвращает все столики, отсортированные по номеру."""
-        return sorted(self._tables.values(), key=lambda table: table.number)
+        return sorted(self.__tables.values(), key=lambda table: table.number)
 
 
 class InMemoryBookingRepository(BookingRepository):
@@ -76,34 +80,34 @@ class InMemoryBookingRepository(BookingRepository):
 
     def __init__(self) -> None:
         """Создаёт пустое хранилище и счётчик идентификаторов."""
-        self._bookings: dict[int, Booking] = {}
-        self._ids = count(1)
+        self.__bookings: dict[int, Booking] = {}
+        self.__ids: Iterator[int] = count(1)
 
     def next_id(self) -> int:
         """Выдаёт новый уникальный идентификатор бронирования."""
-        return next(self._ids)
+        return next(self.__ids)
 
     def add(self, booking: Booking) -> None:
         """Сохраняет новое бронирование."""
-        self._bookings[booking.id] = booking
+        self.__bookings[booking.id] = booking
 
     def update(self, booking: Booking) -> None:
         """Заменяет сохранённое бронирование с тем же идентификатором."""
-        self._bookings[booking.id] = booking
+        self.__bookings[booking.id] = booking
 
     def get(self, booking_id: int) -> Booking | None:
         """Возвращает бронирование по идентификатору или None."""
-        return self._bookings.get(booking_id)
+        return self.__bookings.get(booking_id)
 
     def list_all(self) -> list[Booking]:
         """Возвращает все бронирования, включая отменённые."""
-        return list(self._bookings.values())
+        return list(self.__bookings.values())
 
     def list_by_table(self, table_number: int) -> list[Booking]:
         """Возвращает все бронирования указанного столика."""
         return [
             booking
-            for booking in self._bookings.values()
+            for booking in self.__bookings.values()
             if booking.table_number == table_number
         ]
 
@@ -113,8 +117,8 @@ class InMemoryAdminRepository(AdminRepository):
 
     def __init__(self, admins: Iterable[Admin]) -> None:
         """Заполняет хранилище переданными администраторами."""
-        self._admins = {admin.login: admin for admin in admins}
+        self.__admins: dict[str, Admin] = {admin.login: admin for admin in admins}
 
     def get_by_login(self, login: str) -> Admin | None:
         """Возвращает администратора по логину или None."""
-        return self._admins.get(login)
+        return self.__admins.get(login)

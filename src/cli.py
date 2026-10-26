@@ -2,9 +2,9 @@
 
 from contextlib import suppress
 
-from admin_menu import AdminMenu
-from client_menu import ClientMenu
-from console import Console
+from src.admin_menu import AdminMenu
+from src.client_menu import ClientMenu
+from src.console import Console
 
 
 class ConsoleApp:
@@ -17,22 +17,22 @@ class ConsoleApp:
         admin: AdminMenu,
     ) -> None:
         """Принимает консоль и два меню приложения."""
-        self._console = console
-        self._client = client
-        self._admin = admin
+        self.__console: Console = console
+        self.__client: ClientMenu = client
+        self.__admin: AdminMenu = admin
 
     def run(self) -> None:
         """Запускает главное меню и работает до выбора пункта «Выход»."""
-        self._console.say("Онлайн-бронирование столиков")
+        self.__console.say("Онлайн-бронирование столиков")
         with suppress(EOFError, KeyboardInterrupt):
-            self._console.run_menu(
+            self.__console.run_menu(
                 "Главное меню",
                 [
-                    ("Информация о ресторане", self._client.show_info),
-                    ("Забронировать столик", self._client.book),
-                    ("Отменить бронирование", self._client.cancel),
-                    ("Вход для администратора", self._admin.enter),
+                    ("Информация о ресторане", self.__client.show_info),
+                    ("Забронировать столик", self.__client.book),
+                    ("Отменить бронирование", self.__client.cancel),
+                    ("Вход для администратора", self.__admin.enter),
                 ],
                 "Выход",
             )
-        self._console.say("До свидания!")
+        self.__console.say("До свидания!")
