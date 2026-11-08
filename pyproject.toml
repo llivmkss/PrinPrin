@@ -3,8 +3,9 @@ name = "prinprin"
 version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
-    "alembic>=1.20.1",
+    "alembic[tz]>=1.20.1",
     "fastapi>=0.162.0",
+    "psycopg[binary]>=3.3.8",
     "pydantic>=2.14.1",
     "sqlalchemy>=2.1.6",
 ]
