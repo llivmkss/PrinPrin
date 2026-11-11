@@ -7,10 +7,10 @@ from src.models import Table
 
 RESTAURANT: Restaurant = Restaurant(
     name="Маруся",
-    address="г. Москва, ул. Примерная, д. 1",
-    opens_at=time(10, 0),
+    address="г. Волгоград, ул. Аллея героев, 1",
+    opens_at=time(9, 0),
     closes_at=time(23, 0),
-    phone="+7 (495) 000-00-00",
+    phone="+7 (8442) 59-59-24",
 )
 
 TABLES: list[Table] = [
