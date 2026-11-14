@@ -4,9 +4,9 @@ from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-from src.configs.settings import settings
-from src.database import models  # noqa: F401
-from src.database.base import Base
+from marusya.configs.settings import settings
+from marusya.database import models  # noqa: F401
+from marusya.database.base import Base
 
 config = context.config
 

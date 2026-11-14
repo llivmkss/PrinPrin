@@ -6,7 +6,7 @@
 
 ```
 uv sync
-uv run python -m src.main
+uv run python -m marusya.main
 ```
 
 Вход администратора: логин `admin`, пароль `admin123`.

@@ -38,7 +38,7 @@ uv sync
 
 uv run alembic upgrade head
 
-uv run python -m src.seed\_db
+uv run python -m marusya.seed\_db
 
 ```
 
@@ -54,7 +54,7 @@ uv run python -m src.seed\_db
 
 ```
 
-uv run python -m src.main
+uv run python -m marusya.main
 
 ```
 
