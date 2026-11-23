@@ -1,0 +1,215 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель администратора — {{ restaurant.name }}</title>
+
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/admin.css">
+    <script src="/static/admin.js" defer></script>
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-content">
+            <a class="logo" href="/">МАРУСЯ</a>
+
+            <nav class="admin-navigation">
+                <a href="/">На сайт ресторана</a>
+                <span>Панель администратора</span>
+            </nav>
+        </div>
+    </header>
+
+    <main class="admin-main">
+        <div class="container">
+            <div class="admin-heading">
+                <p class="eyebrow">Управление рестораном</p>
+                <h1>Панель администратора</h1>
+                <p>
+                    Просмотр бронирований, управление записями
+                    и расписанием столиков.
+                </p>
+            </div>
+
+            {% if demo_mode %}
+            <p class="demo-notice">
+                Демонстрационный режим. Изменения хранятся
+                только до остановки сервера.
+            </p>
+            {% endif %}
+
+            <section id="login-view" class="login-section">
+                <div class="form-card login-card">
+                    <h2>Вход в систему</h2>
+                    <p class="muted">
+                        Введите учётные данные администратора.
+                    </p>
+
+                    <form id="login-form">
+                        <label>
+                            Логин
+                            <input
+                                id="admin-login"
+                                type="text"
+                                autocomplete="username"
+                                required
+                            >
+                        </label>
+
+                        <label>
+                            Пароль
+                            <input
+                                id="admin-password"
+                                type="password"
+                                autocomplete="current-password"
+                                required
+                            >
+                        </label>
+
+                        <button class="button login-button" type="submit">
+                            Войти
+                        </button>
+                    </form>
+
+                    <p
+                        id="login-status"
+                        class="message"
+                        role="status"
+                        aria-live="polite"
+                    ></p>
+                </div>
+            </section>
+
+            <div id="admin-view" hidden>
+                <div class="admin-toolbar">
+                    <p>
+                        Вы вошли как
+                        <strong id="current-admin"></strong>
+                    </p>
+
+                    <button
+                        id="logout-button"
+                        class="button button-outline"
+                        type="button"
+                    >
+                        Выйти
+                    </button>
+                </div>
+
+                <section class="statistics-grid" aria-label="Статистика">
+                    <div class="stat-card">
+                        <p>Всего бронирований</p>
+                        <strong id="total-count">0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <p>Активных</p>
+                        <strong id="active-count">0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <p>Отменённых</p>
+                        <strong id="cancelled-count">0</strong>
+                    </div>
+                </section>
+
+                <section class="admin-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">Клиенты</p>
+                            <h2>Все бронирования</h2>
+                        </div>
+
+                        <button
+                            id="refresh-bookings"
+                            class="button"
+                            type="button"
+                        >
+                            Обновить список
+                        </button>
+                    </div>
+
+                    <p
+                        id="bookings-status"
+                        class="message"
+                        role="status"
+                        aria-live="polite"
+                    ></p>
+
+                    <div class="table-scroll">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>№ брони</th>
+                                    <th>Клиент</th>
+                                    <th>Телефон</th>
+                                    <th>Столик</th>
+                                    <th>Гостей</th>
+                                    <th>Дата и время</th>
+                                    <th>Статус</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookings-body"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="admin-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">Расписание</p>
+                            <h2>Занятость столиков</h2>
+                        </div>
+                    </div>
+
+                    <form id="occupancy-form" class="occupancy-form">
+                        <label for="occupancy-day">
+                            Выберите дату
+                            <input
+                                id="occupancy-day"
+                                type="date"
+                                required
+                            >
+                        </label>
+
+                        <button class="button" type="submit">
+                            Показать занятость
+                        </button>
+                    </form>
+
+                    <p
+                        id="occupancy-status"
+                        class="message"
+                        role="status"
+                        aria-live="polite"
+                    ></p>
+
+                    <div class="table-scroll">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Столик</th>
+                                    <th>Зона</th>
+                                    <th>Мест</th>
+                                    <th>Бронирования на дату</th>
+                                </tr>
+                            </thead>
+                            <tbody id="occupancy-body"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>Ресторан «{{ restaurant.name }}»</p>
+            <p>Учебный проект PrinPrin</p>
+        </div>
+    </footer>
+</body>
+</html>
