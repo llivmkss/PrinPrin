@@ -1,4 +1,4 @@
-"""Зависимости FastAPI для работы с базой данных и сервисами."""
+"""Зависимости FastAPI: сессия, сервисы и авторизация."""
 
 from collections.abc import Iterator
 from typing import Annotated
@@ -9,12 +9,10 @@ from fastapi.security import HTTPBasic
 from fastapi.security import HTTPBasicCredentials
 from sqlalchemy.orm import Session
 
-from marusya.database.repositories import SqlAdminRepository
-from marusya.database.repositories import SqlBookingRepository
-from marusya.database.repositories import SqlTableRepository
 from marusya.database.session import SessionFactory
 from marusya.errors import AuthenticationError
 from marusya.models import Admin
+from marusya.repository_factories import SqlRepositoryFactory
 from marusya.security import PasswordHasher
 from marusya.services import AuthService
 from marusya.services import BookingService
@@ -23,7 +21,7 @@ basic_security = HTTPBasic()
 
 
 def get_session() -> Iterator[Session]:
-    """Предоставляет отдельную сессию базы данных для HTTP-запроса."""
+    """Предоставляет SQLAlchemy Session для HTTP-запроса."""
     with SessionFactory() as session:
         yield session
 
@@ -31,19 +29,23 @@ def get_session() -> Iterator[Session]:
 def get_booking_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> BookingService:
-    """Создаёт сервис бронирования с SQL-репозиториями."""
+    """Создаёт сервис бронирования через SQL-фабрику."""
+    factory = SqlRepositoryFactory(session)
+
     return BookingService(
-        SqlTableRepository(session),
-        SqlBookingRepository(session),
+        factory.create_table_repository(),
+        factory.create_booking_repository(),
     )
 
 
 def get_auth_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> AuthService:
-    """Создаёт сервис аутентификации администратора."""
+    """Создаёт сервис аутентификации через SQL-фабрику."""
+    factory = SqlRepositoryFactory(session)
+
     return AuthService(
-        SqlAdminRepository(session),
+        factory.create_admin_repository(),
         PasswordHasher(),
     )
 
@@ -52,7 +54,7 @@ def get_current_admin(
     credentials: Annotated[HTTPBasicCredentials, Depends(basic_security)],
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ) -> Admin:
-    """Проверяет учётные данные администратора для защищённого API."""
+    """Проверяет учётные данные администратора."""
     try:
         return auth_service.login(
             credentials.username,
