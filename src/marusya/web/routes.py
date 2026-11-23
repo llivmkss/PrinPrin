@@ -1,4 +1,4 @@
-"""Маршрут главной страницы ресторана."""
+"""Маршруты веб-интерфейсов ресторана."""
 
 from pathlib import Path
 
@@ -22,6 +22,19 @@ def home(request: Request) -> HTMLResponse:
     return templates.TemplateResponse(
         request=request,
         name="index.html",
+        context={
+            "restaurant": RESTAURANT,
+            "demo_mode": request.app.state.demo_mode,
+        },
+    )
+
+
+@router.get("/admin", response_class=HTMLResponse)
+def admin_page(request: Request) -> HTMLResponse:
+    """Отображает страницу входа и панель администратора."""
+    return templates.TemplateResponse(
+        request=request,
+        name="admin.html",
         context={
             "restaurant": RESTAURANT,
             "demo_mode": request.app.state.demo_mode,
