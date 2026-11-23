@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ restaurant.name }} — бронирование столиков</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="/static/app.js" defer></script>
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-content">
+            <a class="logo" href="/">МАРУСЯ</a>
+            <span class="header-caption">Ресторан · Волгоград</span>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container hero-content">
+                <p class="eyebrow">Рады вас видеть</p>
+                <h1>Ваш столик<br>уже ждёт вас</h1>
+                <p class="hero-description">
+                    Выберите удобное время и забронируйте
+                    столик в ресторане «Маруся».
+                </p>
+                <a class="button button-light" href="#reservation">
+                    Забронировать столик
+                </a>
+            </div>
+        </section>
+
+        {% if demo_mode %}
+        <div class="container">
+            <p class="demo-notice">
+                Демонстрационный режим: бронирования сохраняются
+                только до остановки сервера.
+            </p>
+        </div>
+        {% endif %}
+
+        <section class="reservation-section" id="reservation">
+            <div class="container">
+                <div class="section-heading">
+                    <p class="eyebrow">Онлайн-бронирование</p>
+                    <h2>Найдите свой столик</h2>
+                    <p>
+                        Выберите дату, время и количество гостей.
+                        Мы покажем подходящие свободные столики.
+                    </p>
+                </div>
+
+                <form id="search-form" class="form-card">
+                    <div class="form-grid">
+                        <label>
+                            Дата и время
+                            <input
+                                id="start"
+                                name="start"
+                                type="datetime-local"
+                                required
+                            >
+                        </label>
+
+                        <label>
+                            Количество гостей
+                            <input
+                                id="guests"
+                                name="guests"
+                                type="number"
+                                min="1"
+                                max="20"
+                                value="2"
+                                required
+                            >
+                        </label>
+                    </div>
+
+                    <button class="button" type="submit">
+                        Найти свободные столики
+                    </button>
+                </form>
+
+                <div class="results-section">
+                    <p id="search-status" class="message" role="status"></p>
+                    <div id="tables-list" class="tables-grid"></div>
+                </div>
+
+                <form id="booking-form" class="form-card booking-card" hidden>
+                    <h3>Оформление бронирования</h3>
+
+                    <p id="selected-table" class="selected-table"></p>
+
+                    <div class="form-grid">
+                        <label>
+                            Ваше имя
+                            <input
+                                id="customer-name"
+                                type="text"
+                                maxlength="50"
+                                autocomplete="name"
+                                required
+                            >
+                        </label>
+
+                        <label>
+                            Номер телефона
+                            <input
+                                id="customer-phone"
+                                type="tel"
+                                placeholder="+79991234567"
+                                autocomplete="tel"
+                                required
+                            >
+                        </label>
+                    </div>
+
+                    <button class="button" type="submit">
+                        Подтвердить бронирование
+                    </button>
+                </form>
+
+                <p id="booking-status" class="message" role="status"></p>
+            </div>
+        </section>
+
+        <section class="info-section">
+            <div class="container">
+                <p class="eyebrow">Ждём вас в гости</p>
+                <h2>{{ restaurant.name }}</h2>
+
+                <div class="info-grid">
+                    <div>
+                        <h3>Адрес</h3>
+                        <p>{{ restaurant.address }}</p>
+                    </div>
+
+                    <div>
+                        <h3>Часы работы</h3>
+                        <p>
+                            {{ restaurant.opens_at.strftime("%H:%M") }}
+                            —
+                            {{ restaurant.closes_at.strftime("%H:%M") }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3>Телефон</h3>
+                        <p>{{ restaurant.phone }}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>© Ресторан «{{ restaurant.name }}»</p>
+            <p>Учебный проект PrinPrin</p>
+        </div>
+    </footer>
+</body>
+</html>
