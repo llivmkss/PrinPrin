@@ -1,0 +1,26 @@
+services:
+db:
+image: postgres:16
+environment:
+POSTGRES_USER: marusya
+POSTGRES_PASSWORD: marusya
+POSTGRES_DB: marusya
+volumes:
+- pgdata:/var/lib/postgresql/data
+healthcheck:
+test: ["CMD-SHELL", "pg_isready -U marusya"]
+interval: 3s
+retries: 10
+
+app:
+build: .
+environment:
+DATABASE_URL: postgresql+psycopg://marusya:marusya@db:5432/marusya
+depends_on:
+db:
+condition: service_healthy
+stdin_open: true
+tty: true
+
+volumes:
+pgdata:
